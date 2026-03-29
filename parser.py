@@ -1,10 +1,20 @@
-#main parser function - parses json found in local directory and returns csv, txt, xml, and xslx
+##############PARSER MODULE#####################
+#DIRECTIONS:
+#   All parsing to valid json is done within public functions.
+#   Call any of the below functions with a file path string to object array file:
+#       df_to_json(filpath)
+#       df_to_csv(filpath)
+#       df_to_txt(filpath)
+#       df_to_xml(filpath)
+#       df_to_excel(filpath) WIP
+
+
 from io import StringIO
 import pandas as pd
 import re
-import datetime
 
 filename = "example.json"
+
 
 #opens objectarray file -> [replace example.json with other filename later] returns valid json string
 def parse_to_json(filename):
@@ -52,13 +62,13 @@ def parse_to_json(filename):
                     str = sentencesplit[0] + replaceid[0] + sentencesplit[1]
                 else:
                     str = sentencesplit[0] + replaceid[0]  
-            #str = re.sub(r'\s', '', str) #problem child
             jsonstring += str
     file.close
     return jsonstring
 
-#Parses through json
-def parse(jsonstr):
+#Parses through properly formatted json, returns dataframe
+def parse_to_df(filename):
+    jsonstr = parse_to_json(filename)
     #breaks up objects
     jarr = jsonstr.split(']\n[')
     classobj = jarr[0] + "]"
@@ -101,5 +111,42 @@ def parse(jsonstr):
         assignmentsdf.loc[i, "deadline"] = dtstr
     return assignmentsdf
 
+def df_to_json(filename):
+    df = parse_to_df(filename)
+    assignmentsjson = df.to_json("assignments.json" ,orient="index")
+    return assignmentsjson
 
-print(parse(parse_to_json(filename)).head(10))
+def df_to_csv(filename):
+    df = parse_to_df(filename)
+    assignmentscsv = df.to_csv("assignments.csv", columns={"className", "name", "deadline"}, index=False)
+    return assignmentscsv
+
+def df_to_txt(filename):
+    df = parse_to_df(filename)
+    path = r'assignments.txt'
+
+    with open(path, 'a') as f:
+        assignmentstxt = df.to_string(header=True, index=True)
+        f.write(assignmentstxt)
+    f.close
+    return assignmentstxt
+
+def df_to_xml(filename):
+    df = parse_to_df(filename)
+    assignmentsxml = df.to_xml(index=False)
+    path = r'assignments.xml'
+
+    with open(path, 'a') as f:
+        assignmentsxml = df.to_string()
+        f.write(assignmentsxml)
+    f.close
+    return assignmentsxml
+
+# def df_to_excel(filename):
+#     df = parse_to_df(filename)
+#     assignmentsxlsx = df.to_excel("assignments.xlsx")
+#     return assignmentsxlsx
+
+#df_to_csv(filename)
+#formattedjson = parse_to_df(filename)
+# print(df_to_excel(filename))
