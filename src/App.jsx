@@ -295,7 +295,7 @@ function WelcomeScreen({ onStart }) {
 }
 
 /* ─── WINDOW 2: LOGIN ─── */
-/* LoginScreen RECEIVES onLogin and onBack as props from App (defined in ROOT) */
+/* LoginScreen RECEIVES onLogin and onBack as props from App (defined in ROOT)*/
 
 function LoginScreen({ onLogin, onBack }) {
   const [username, setUsername] = useState("");
@@ -333,12 +333,13 @@ function LoginScreen({ onLogin, onBack }) {
             <button onClick={() => setShowPassword(!showPassword)} style={{ position: "absolute", right: "14px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#0369a1", fontSize: "16px", opacity: 0.6 }}>{showPassword ? "🙈" : "👁️"}</button>
           </div>
         </div>
-        {/* Log In button — calls onLogin(username, password) which is defined in ROOT */}
+
         <button onClick={() => ready && onLogin(username, password)} style={{ width: "100%", background: ready ? "linear-gradient(135deg, #0284c7, #0ea5e9)" : "rgba(186,230,253,0.5)", border: "none", borderRadius: "14px", padding: "16px", color: ready ? "#fff" : "#93c5fd", fontSize: "16px", fontWeight: "700", cursor: ready ? "pointer" : "not-allowed", fontFamily: "inherit", letterSpacing: "0.04em", transition: "all 0.2s", boxShadow: ready ? "0 6px 24px rgba(2,132,199,0.35)" : "none", marginBottom: "12px" }}
           onMouseEnter={(e) => { if (ready) { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 10px 32px rgba(2,132,199,0.45)"; } }}
           onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = ready ? "0 6px 24px rgba(2,132,199,0.35)" : "none"; }}
         >Log In</button>
-        {/* Back button — calls onBack() which is defined in ROOT */}
+
+        {/* This is where onBack gets called → triggers setStep(0) back in App → goes to welcome screen */}
         <button onClick={onBack} style={{ width: "100%", background: "none", border: "1.5px solid rgba(186,230,253,0.8)", borderRadius: "14px", padding: "13px", color: "#0369a1", fontSize: "14px", fontWeight: "600", cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s" }}
           onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.4)")}
           onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
@@ -361,9 +362,10 @@ const LOADING_MESSAGES = [
   "Almost there...",
 ];
 
-function LoadingScreen({ onDone }) {
+function LoadingScreen({ onDone, loggedUser, loggedPassword }) {
   const [msgIndex, setMsgIndex] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [items, setItems] = useState([]);
   const [fade, setFade] = useState(true);
 
   useEffect(() => {
@@ -383,6 +385,16 @@ function LoadingScreen({ onDone }) {
     }, 105);
     return () => clearInterval(progInterval);
   }, [onDone]);
+
+    useEffect(() => {
+        fetch(`http://127.0.0.1:5000/login-submit?user=${loggedUser}&pass=${loggedPassword}`)
+            .then((res) => res.json())
+            .then((json) => {
+                setItems(json);
+                setDataIsLoaded(true);
+            });
+    }, [loggedUser,loggedPassword]); 
+	console.log(items);
 
   return (
     <div className="static-bg-loading" style={{ minHeight: "100vh", position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 24px" }}>
@@ -422,7 +434,7 @@ function LoadingScreen({ onDone }) {
 
 /* ─── WINDOW 4: DONE / EXPORT ─── */
 
-function DoneScreen({ onRestart, loggedUser, assignments }) {
+function DoneScreen({ onRestart, loggedUser, jsonString }) {
   const [format, setFormat] = useState("json");
   const [downloaded, setDownloaded] = useState(false);
   const [calendarAdded, setCalendarAdded] = useState(false);
@@ -571,8 +583,18 @@ export default function App() {
         onBack={() => setStep(0)}
       />}
       {step === 2 && <LoadingScreen onDone={() => setStep(3)} />}
-      {step === 3 && <DoneScreen onRestart={() => setStep(0)} loggedUser={loggedUser} assignments={assignments} />}
+      {step === 3 && <DoneScreen onRestart={() => setStep(0)} loggedUser={loggedUser} assignments={assignments} />
 
+       {/*onLogin={(username, password) => {
+        setLoggedUser(username);
+        setLoggedPassword(password);
+        setStep(2);
+      }} 
+      onBack={() => setStep(0)} 
+       />}
+      {step === 2 && <LoadingScreen onDone={() => setStep(3)} loggedUser={loggedUser} loggedPassword={loggedPassword}/>}
+      {step === 3 && <DoneScreen onRestart={() => setStep(0)} loggedUser={loggedUser} jsonString={jsonString}/>}
+      */}
       {panel === "about" && <AboutUsPanel onClose={() => setPanel(null)} />}
       {panel === "howto" && <HowToUsePanel onClose={() => setPanel(null)} />}
 
