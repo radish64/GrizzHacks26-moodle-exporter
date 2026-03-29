@@ -133,7 +133,7 @@ def df_to_json(filename, hashed):
     df = parse_to_df(filename)
     hashed = hashed + ".json"
     assignmentsjson = df.to_json(hashed, orient="index", indent=4)
-    with open(r'assignments.json', 'r') as f:
+    with open(hashed, 'r') as f:
         assignmentsjson = f.readlines()
     f.close
     return assignmentsjson

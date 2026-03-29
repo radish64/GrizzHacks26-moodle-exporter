@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "moodle": "^1.2.1",
+    "moodle-scrape": "^3.1.5",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },

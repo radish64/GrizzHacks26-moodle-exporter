@@ -395,11 +395,25 @@ const LOADING_MESSAGES = [
   "Almost there...",
 ];
 
-function LoadingScreen({ onDone, loggedUser, loggedPassword }) {
+function LoadingScreen({ onDone, loggedUser, loggedPassword, setAssignments}) {
   const [msgIndex, setMsgIndex] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [items, setItems] = useState([]);
   const [fade, setFade] = useState(true);
+
+  /* useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const res = await fetch(`http://127.0.0.1:5000/login-submit?user=${loggedUser}&pass=${loggedPassword}`);
+      const json = await res.json();
+      console.log(json);
+      // setAssignments(json);
+    } catch (error) {
+      console.log("ERROR: Could not connect to server.");
+      console.log(error.message);
+    }
+  };
+  fetchData();
+}, [loggedUser, loggedPassword]); */
 
   useEffect(() => {
     const msgInterval = setInterval(() => {
@@ -418,16 +432,6 @@ function LoadingScreen({ onDone, loggedUser, loggedPassword }) {
     }, 105);
     return () => clearInterval(progInterval);
   }, [onDone]);
-
-    useEffect(() => {
-        fetch(`http://127.0.0.1:5000/login-submit?user=${loggedUser}&pass=${loggedPassword}`)
-            .then((res) => res.json())
-            .then((json) => {
-                setItems(json);
-                setDataIsLoaded(true);
-            });
-    }, [loggedUser,loggedPassword]); 
-	console.log(items);
 
   return (
     <div className="static-bg-loading" style={{ minHeight: "100vh", position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 24px" }}>
@@ -467,7 +471,7 @@ function LoadingScreen({ onDone, loggedUser, loggedPassword }) {
 
 /* ─── WINDOW 4: DONE / EXPORT ─── */
 
-function DoneScreen({ onRestart, loggedUser, jsonString }) {
+function DoneScreen({ onRestart, loggedUser, assignments }) {
   const [format, setFormat] = useState("json");
   const [downloaded, setDownloaded] = useState(false);
   const [calendarAdded, setCalendarAdded] = useState(false);
@@ -614,8 +618,10 @@ export default function App() {
         }}
         onBack={() => setStep(0)}
       />}
-      {step === 2 && <LoadingScreen onDone={() => setStep(3)} />}
-      {step === 3 && <DoneScreen onRestart={() => setStep(0)} loggedUser={loggedUser} assignments={assignments} />
+      {/* LoadingScreen receives credentials so backend can use them */}
+      {step === 2 && <LoadingScreen onDone={() => setStep(3)} loggedUser={loggedUser} loggedPassword={loggedPassword} setAssignments={setAssignments} />}
+      {/* DoneScreen receives assignments to display in the table */}
+      {step === 3 && <DoneScreen onRestart={() => setStep(0)} loggedUser={loggedUser} assignments={assignments} />}
 
        {/*onLogin={(username, password) => {
         setLoggedUser(username);
