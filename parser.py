@@ -79,18 +79,18 @@ def parse_to_df(filename):
 
     #parse coursename
     #size of df is returned row*column, so dividing by num of columns
-    classname_dict = {}
+    courseName_dict = {}
     numrows = int(classdf.size/3)
     for i in range(0, numrows, 1):
         str = classdf.loc[i, "name"]
         newclass = re.findall("[A-Z]{3}-[0-9]{4}", str)
         classdf.loc[i, "name"]=newclass[0]
         #add to dict
-        classname_dict[int(classdf.loc[i, "id"])]=newclass[0]
+        courseName_dict[int(classdf.loc[i, "id"])]=newclass[0]
 
     #assign coursename on assignmentsdf
-    #add new col for className
-    assignmentsdf.insert(loc=1, column="className", value="")
+    #add new col for courseName
+    assignmentsdf.insert(loc=1, column="courseName", value="")
     #deleting assignments id
     assignmentsdf.drop("id", axis=1, inplace=True)
     #5 columns in df after col changes
@@ -98,7 +98,7 @@ def parse_to_df(filename):
     for i in range(0, numrows, 1):
         courseid = assignmentsdf.loc[i, "courseId"]
         #use dict for lookup
-        assignmentsdf.loc[i, "className"]=classname_dict[int(courseid)]
+        assignmentsdf.loc[i, "courseName"]=courseName_dict[int(courseid)]
     #deletes desc and course id column once no longer needed
     assignmentsdf.drop(columns=["courseId", "description"], inplace=True)
 
@@ -111,6 +111,13 @@ def parse_to_df(filename):
         assignmentsdf.loc[i, "deadline"] = dtstr
     return assignmentsdf
 
+#REQUIRES PATH TO VALID JSON
+def json_to_df(validjson):
+    assignmentsdf = pd.read_json(validjson)
+    return assignmentsdf
+
+
+
 def df_to_json(filename):
     df = parse_to_df(filename)
     assignmentsjson = df.to_json("assignments.json" ,orient="index")
@@ -118,7 +125,7 @@ def df_to_json(filename):
 
 def df_to_csv(filename):
     df = parse_to_df(filename)
-    assignmentscsv = df.to_csv("assignments.csv", columns={"className", "name", "deadline"}, index=False)
+    assignmentscsv = df.to_csv("assignments.csv", columns={"courseName", "name", "deadline"}, index=False)
     return assignmentscsv
 
 def df_to_txt(filename):
@@ -149,4 +156,4 @@ def df_to_xml(filename):
 
 #df_to_csv(filename)
 #formattedjson = parse_to_df(filename)
-# print(df_to_excel(filename))
+print(json_to_df("assignments.json"))
