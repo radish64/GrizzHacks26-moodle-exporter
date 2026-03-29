@@ -313,7 +313,7 @@ function WelcomeScreen({ onStart }) {
 }
 
 /* ─── WINDOW 2: LOGIN ─── */
-// LoginScreen RECEIVES onLogin and onBack as props from App (defined in ROOT)
+/* LoginScreen RECEIVES onLogin and onBack as props from App (defined in ROOT)*/
 
 function LoginScreen({ onLogin, onBack }) {
   const [username, setUsername] = useState("");
@@ -352,8 +352,6 @@ function LoginScreen({ onLogin, onBack }) {
           </div>
         </div>
 
-        // THIS is where onLogin gets called. If ready=true (both fields filled),
-        // it calls onLogin() which triggers setStep(2) back in App → goes to loading screen
         <button onClick={() => ready && onLogin(username, password)} style={{ width: "100%", background: ready ? "linear-gradient(135deg, #0284c7, #0ea5e9)" : "rgba(186,230,253,0.5)", border: "none", borderRadius: "14px", padding: "16px", color: ready ? "#fff" : "#93c5fd", fontSize: "16px", fontWeight: "700", cursor: ready ? "pointer" : "not-allowed", fontFamily: "inherit", letterSpacing: "0.04em", transition: "all 0.2s", boxShadow: ready ? "0 6px 24px rgba(2,132,199,0.35)" : "none", marginBottom: "12px" }}
           onMouseEnter={(e) => { if (ready) { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 10px 32px rgba(2,132,199,0.45)"; } }}
           onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = ready ? "0 6px 24px rgba(2,132,199,0.35)" : "none"; }}
@@ -460,19 +458,21 @@ const SAMPLE_ASSIGNMENTS = [
   { courseName: "CSI-4240-13258 / CSI-5240-13259.202610", name: "Homework 4", deadline: "2026-04-15T18:27:00.000Z" },
   { courseName: "CSI-4240-13258 / CSI-5240-13259.202610", name: "Homework 5", deadline: "2026-05-15T18:27:00.000Z" },
   { courseName: "CSI-4240-13258 / CSI-5240-13259.202610", name: "Homework 6", deadline: "2026-06-15T18:27:00.000Z" },
+  { courseName: "CSI-4240-13258 / CSI-5240-13259.202610", name: "Homework 6", deadline: "2026-06-15T18:27:00.000Z" },
 ];
 
-function DoneScreen({ onRestart, loggedUser }) {
+function DoneScreen({ onRestart, loggedUser, jsonString }) {
   const [format, setFormat] = useState("json");
   const [downloaded, setDownloaded] = useState(false);
   const [calendarAdded, setCalendarAdded] = useState(false);
   const [copied, setCopied] = useState(false);
-  const jsonString = JSON.stringify(SAMPLE_ASSIGNMENTS, null, 2);
+  const jsonObject = JSON.parse(jsonString)
+  /* const jsonString = JSON.stringify(SAMPLE_ASSIGNMENTS, null, 2);*/
 
   const handleCopy = () => {
     const tableText = [
       ["Course Name", "Assignment", "Deadline"].join("\t"),
-      ...SAMPLE_ASSIGNMENTS.map((a) => [
+      ...jsonObject.map((a) => [
         a.courseName,
         a.name,
         new Date(a.deadline).toLocaleDateString("en-US", {
@@ -508,7 +508,7 @@ function DoneScreen({ onRestart, loggedUser }) {
           <div>
             <div style={{ display: "inline-block", background: "rgba(14,165,233,0.12)", color: "#0284c7", borderRadius: "100px", padding: "4px 14px", fontSize: "12px", fontWeight: "700", fontFamily: "monospace", letterSpacing: "0.1em", marginBottom: "12px" }}>STEP 3 OF 3</div>
             <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "30px", fontWeight: "800", color: "#0c4a6e", lineHeight: 1.1 }}>Your assignments 🎉</h2>
-            <p style={{ color: "#0369a1", fontSize: "14px", marginTop: "6px", lineHeight: 1.5 }}>{SAMPLE_ASSIGNMENTS.length} assignments found</p>
+            <p style={{ color: "#0369a1", fontSize: "14px", marginTop: "6px", lineHeight: 1.5 }}>{jsonObject.length} assignments found</p>
           </div>
           <button onClick={handleCopy} style={{ background: copied ? "rgba(16,185,129,0.15)" : "rgba(255,255,255,0.7)", border: `1.5px solid ${copied ? "rgba(16,185,129,0.5)" : "rgba(186,230,253,0.8)"}`, borderRadius: "12px", padding: "10px 18px", color: copied ? "#065f46" : "#0369a1", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s", whiteSpace: "nowrap" }}>
             {copied ? "✅ Copied!" : "📋 Copy Table"}
@@ -527,7 +527,7 @@ function DoneScreen({ onRestart, loggedUser }) {
                 </tr>
               </thead>
               <tbody>
-                {SAMPLE_ASSIGNMENTS.map((a, i) => (
+                {jsonObject.map((a, i) => (
                   <tr key={i} style={{ background: i % 2 === 0 ? "rgba(255,255,255,0.5)" : "rgba(186,230,253,0.15)", borderBottom: "1px solid rgba(186,230,253,0.3)" }}>
                     <td style={{ padding: "10px 16px", color: "#075985", fontWeight: "600", fontSize: "12px", maxWidth: "220px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.courseName}</td>
                     <td style={{ padding: "10px 16px", color: "#0c4a6e", fontWeight: "700", fontSize: "13px" }}>{a.name}</td>
@@ -589,6 +589,7 @@ export default function App() {
   const [panel, setPanel] = useState(null);
   const [loggedUser, setLoggedUser] = useState(""); 
   const [loggedPassword, setLoggedPassword] = useState("");
+  const [jsonString, setjsonString]=useState(JSON.stringify(SAMPLE_ASSIGNMENTS))
   return (
     <>
       <style>{GLOBAL_STYLES}</style>
@@ -611,7 +612,7 @@ export default function App() {
       onBack={() => setStep(0)} 
        />}
       {step === 2 && <LoadingScreen onDone={() => setStep(3)} />}
-      {step === 3 && <DoneScreen onRestart={() => setStep(0)} loggedUser={loggedUser} />}
+      {step === 3 && <DoneScreen onRestart={() => setStep(0)} loggedUser={loggedUser} jsonString={jsonString}/>}
       {panel === "about" && <AboutUsPanel onClose={() => setPanel(null)} />}
       {panel === "howto" && <HowToUsePanel onClose={() => setPanel(null)} />}
 
