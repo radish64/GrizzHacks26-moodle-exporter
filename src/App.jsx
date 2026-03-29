@@ -313,6 +313,7 @@ function WelcomeScreen({ onStart }) {
 }
 
 /* ─── WINDOW 2: LOGIN ─── */
+// LoginScreen RECEIVES onLogin and onBack as props from App (defined in ROOT)
 
 function LoginScreen({ onLogin, onBack }) {
   const [username, setUsername] = useState("");
@@ -350,10 +351,15 @@ function LoginScreen({ onLogin, onBack }) {
             <button onClick={() => setShowPassword(!showPassword)} style={{ position: "absolute", right: "14px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#0369a1", fontSize: "16px", opacity: 0.6 }}>{showPassword ? "🙈" : "👁️"}</button>
           </div>
         </div>
-        <button onClick={() => ready && onLogin()} style={{ width: "100%", background: ready ? "linear-gradient(135deg, #0284c7, #0ea5e9)" : "rgba(186,230,253,0.5)", border: "none", borderRadius: "14px", padding: "16px", color: ready ? "#fff" : "#93c5fd", fontSize: "16px", fontWeight: "700", cursor: ready ? "pointer" : "not-allowed", fontFamily: "inherit", letterSpacing: "0.04em", transition: "all 0.2s", boxShadow: ready ? "0 6px 24px rgba(2,132,199,0.35)" : "none", marginBottom: "12px" }}
+
+        // THIS is where onLogin gets called. If ready=true (both fields filled),
+        // it calls onLogin() which triggers setStep(2) back in App → goes to loading screen
+        <button onClick={() => ready && onLogin(username, password)} style={{ width: "100%", background: ready ? "linear-gradient(135deg, #0284c7, #0ea5e9)" : "rgba(186,230,253,0.5)", border: "none", borderRadius: "14px", padding: "16px", color: ready ? "#fff" : "#93c5fd", fontSize: "16px", fontWeight: "700", cursor: ready ? "pointer" : "not-allowed", fontFamily: "inherit", letterSpacing: "0.04em", transition: "all 0.2s", boxShadow: ready ? "0 6px 24px rgba(2,132,199,0.35)" : "none", marginBottom: "12px" }}
           onMouseEnter={(e) => { if (ready) { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 10px 32px rgba(2,132,199,0.45)"; } }}
           onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = ready ? "0 6px 24px rgba(2,132,199,0.35)" : "none"; }}
         >Log In</button>
+
+        // This is where onBack gets called → triggers setStep(0) back in App → goes to welcome screen
         <button onClick={onBack} style={{ width: "100%", background: "none", border: "1.5px solid rgba(186,230,253,0.8)", borderRadius: "14px", padding: "13px", color: "#0369a1", fontSize: "14px", fontWeight: "600", cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s" }}
           onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.4)")}
           onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
@@ -456,12 +462,11 @@ const SAMPLE_ASSIGNMENTS = [
   { courseName: "CSI-4240-13258 / CSI-5240-13259.202610", name: "Homework 6", deadline: "2026-06-15T18:27:00.000Z" },
 ];
 
-function DoneScreen({ onRestart }) {
+function DoneScreen({ onRestart, loggedUser }) {
   const [format, setFormat] = useState("json");
   const [downloaded, setDownloaded] = useState(false);
   const [calendarAdded, setCalendarAdded] = useState(false);
   const [copied, setCopied] = useState(false);
-
   const jsonString = JSON.stringify(SAMPLE_ASSIGNMENTS, null, 2);
 
   const handleCopy = () => {
@@ -582,7 +587,8 @@ function DoneScreen({ onRestart }) {
 export default function App() {
   const [step, setStep] = useState(0);
   const [panel, setPanel] = useState(null);
-
+  const [loggedUser, setLoggedUser] = useState(""); 
+  const [loggedPassword, setLoggedPassword] = useState("");
   return (
     <>
       <style>{GLOBAL_STYLES}</style>
@@ -591,12 +597,21 @@ export default function App() {
         onAbout={() => setPanel("about")}
         onHowTo={() => setPanel("howto")}
       />
-
+       
       {step === 0 && <WelcomeScreen onStart={() => setStep(1)} />}
-      {step === 1 && <LoginScreen onLogin={() => setStep(2)} onBack={() => setStep(0)} />}
+      {/* LoginScreen is called here. onLogin and onBack are defined RIGHT HERE as arrow functions.
+    onLogin = when called, move to step 2 (loading screen)
+    onBack  = when called, move to step 0 (welcome screen) */}
+      {step === 1 && <LoginScreen
+       onLogin={(username, password) => {
+        setLoggedUser(username);
+        setLoggedPassword(password);
+        setStep(2);
+      }} 
+      onBack={() => setStep(0)} 
+       />}
       {step === 2 && <LoadingScreen onDone={() => setStep(3)} />}
-      {step === 3 && <DoneScreen onRestart={() => setStep(0)} />}
-
+      {step === 3 && <DoneScreen onRestart={() => setStep(0)} loggedUser={loggedUser} />}
       {panel === "about" && <AboutUsPanel onClose={() => setPanel(null)} />}
       {panel === "howto" && <HowToUsePanel onClose={() => setPanel(null)} />}
 
