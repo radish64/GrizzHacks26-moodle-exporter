@@ -1,4 +1,4 @@
-##############PARSER MODULE#####################
+##############PARSER MODULE####################
 #DIRECTIONS:
 #   All parsing to valid json is done within public functions.
 #   Call any of the below functions with a file path string to object array file:
@@ -13,7 +13,6 @@ from io import StringIO
 import pandas as pd
 import re
 
-filename = "example.json"
 
 
 #opens objectarray file -> [replace example.json with other filename later] returns valid json string
@@ -149,11 +148,7 @@ def df_to_xml(filename):
     f.close
     return assignmentsxml
 
-# def df_to_excel(filename):
-#     df = parse_to_df(filename)
-#     assignmentsxlsx = df.to_excel("assignments.xlsx")
-#     return assignmentsxlsx
-
-#df_to_csv(filename)
-#formattedjson = parse_to_df(filename)
-print(json_to_df("assignments.json"))
+def df_to_excel(filename):
+    df = parse_to_df(filename)
+    assignmentsxlsx = df.to_excel("assignments.xlsx", index=False)
+    return assignmentsxlsx
