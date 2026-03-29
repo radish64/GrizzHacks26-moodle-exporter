@@ -26,41 +26,9 @@ def login_submit():
 	filename = f"./{userhash}.fson"
 	filename2 = f"./{userhash}.tmp.fson"
 	if os.path.isfile(filename):
-		tmpfile = open(filename2, 'w')
-		oldfile = open(filename, 'r')
-		scrape = subprocess.call(["node", "./example/index.js", username, password], stdout=tmpfile)
-		oldfile.close()
-		newfile = open(filename, 'w')
-
-		diff = subprocess.run(["diff", filename, filename2], stdout=subprocess.PIPE, text=True)
-		difftxt = re.sub('> ', '', diff.stdout)
-		if '[' in diff.stdout:
-			diffsplit = difftxt.split('\n')
-			difftxt = ""
-			index = 0
-			for f in diffsplit:
-				if index >= 1:
-					difftxt += f"{f}\n"
-				index += 1
-			print(difftxt)
-			newfile.write(difftxt)
-		else:
-			diffsplit = difftxt.split('\n')
-			difftxt = ""
-			index = 0
-			for f in diffsplit:
-				if index >= 2:
-					difftxt += f"{f}\n"
-				index += 1
-			print(difftxt)
-			newfile.write("[ " + difftxt + "}]")
-		newfile.close()
-		tmpfile.close()
-		if os.path.isfile(filename2):
-			os.remove(filename2)
-	else:
-		tmpfile = open(filename, 'w')
-		scrape = subprocess.call(["node", "./example/index.js", username, password], stdout=tmpfile)
+	tmpfile = open(filename, 'w')
+	scrape = subprocess.call(["node", "./example/index.js", username, password], stdout=tmpfile)
+	tmpfile.close()
 	returnjson = parser.df_to_json(filename, userhash)
 	print(returnjson)
 	return Resonse(returnjson, mimetype='text/json')
