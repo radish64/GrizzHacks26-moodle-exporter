@@ -357,7 +357,7 @@ function LoginScreen({ onLogin, onBack }) {
           onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = ready ? "0 6px 24px rgba(2,132,199,0.35)" : "none"; }}
         >Log In</button>
 
-        // This is where onBack gets called → triggers setStep(0) back in App → goes to welcome screen
+        {/* This is where onBack gets called → triggers setStep(0) back in App → goes to welcome screen */}
         <button onClick={onBack} style={{ width: "100%", background: "none", border: "1.5px solid rgba(186,230,253,0.8)", borderRadius: "14px", padding: "13px", color: "#0369a1", fontSize: "14px", fontWeight: "600", cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s" }}
           onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.4)")}
           onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
@@ -380,9 +380,10 @@ const LOADING_MESSAGES = [
   "Almost there...",
 ];
 
-function LoadingScreen({ onDone }) {
+function LoadingScreen({ onDone, loggedUser, loggedPassword }) {
   const [msgIndex, setMsgIndex] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [items, setItems] = useState([]);
   const [fade, setFade] = useState(true);
 
   useEffect(() => {
@@ -402,6 +403,16 @@ function LoadingScreen({ onDone }) {
     }, 105);
     return () => clearInterval(progInterval);
   }, [onDone]);
+
+    useEffect(() => {
+        fetch(`http://127.0.0.1:5000/login-submit?user=${loggedUser}&pass=${loggedPassword}`)
+            .then((res) => res.json())
+            .then((json) => {
+                setItems(json);
+                setDataIsLoaded(true);
+            });
+    }, [loggedUser,loggedPassword]); 
+	console.log(items);
 
   return (
     <div className="static-bg-loading" style={{ minHeight: "100vh", position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 24px" }}>
@@ -611,7 +622,7 @@ export default function App() {
       }} 
       onBack={() => setStep(0)} 
        />}
-      {step === 2 && <LoadingScreen onDone={() => setStep(3)} />}
+      {step === 2 && <LoadingScreen onDone={() => setStep(3)} loggedUser={loggedUser} loggedPassword={loggedPassword}/>}
       {step === 3 && <DoneScreen onRestart={() => setStep(0)} loggedUser={loggedUser} jsonString={jsonString}/>}
       {panel === "about" && <AboutUsPanel onClose={() => setPanel(null)} />}
       {panel === "howto" && <HowToUsePanel onClose={() => setPanel(null)} />}
