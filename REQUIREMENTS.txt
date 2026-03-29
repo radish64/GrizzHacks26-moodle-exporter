@@ -1,0 +1,6 @@
+pandas
+--> pip install pandas
+lxml
+--> pip install lxml
+openpyxl
+--> pip install openpyxl
