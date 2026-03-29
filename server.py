@@ -23,8 +23,8 @@ def login_submit():
 		username = request.args.get('user')
 		password = request.args.get('pass')
 	userhash = hashlib.sha256(b"{username}").hexdigest()
-	filename = f"./{userhash}.json"
-	filename2 = f"./{userhash}.tmp.json"
+	filename = f"./{userhash}.fson"
+	filename2 = f"./{userhash}.tmp.fson"
 	if os.path.isfile(filename):
 		tmpfile = open(filename2, 'w')
 		oldfile = open(filename, 'r')
@@ -61,7 +61,7 @@ def login_submit():
 	else:
 		tmpfile = open(filename, 'w')
 		scrape = subprocess.call(["node", "./example/index.js", username, password], stdout=tmpfile)
-	returnjson = parser.df_to_json(filename)
+	returnjson = parser.df_to_json(filename, userhash)
 	print(returnjson)
 	return Resonse(returnjson, mimetype='text/json')
 	#return send_file(f"{userhash}.json", mimetype='text/text')
@@ -71,17 +71,48 @@ def login_submit():
 #		<link rel="canonical" href="/choice/?user={userhash}">
 #			''')
 
-@app.route('/choice/')
-def choice():
-	userhash = request.args.get('user')
-	return send_file(f"{userhash}.json", mimetype='text/text')
-
 @app.route('/delete/')
 def delete():
 	userhash = request.args.get('user')
 	for f in glob.glob(f"{userhash}.*"):
 		os.remove(f)
 	return "deleted"
+
+@app.route('/txt/')
+def txt():
+	username = request.args.get('user')
+	userhash = hashlib.sha256(b"{username}").hexdigest()
+
+	txt = parser.df_to_txt(f"{userhash}.fson", userhash)
+	return Response(txt, mimetype='text/text')
+
+@app.route('/csv/')
+def csv():
+	username = request.args.get('user')
+	userhash = hashlib.sha256(b"{username}").hexdigest()
+	csv = parser.df_to_txt(f"{userhash}.fson", userhash)
+	return Response(csv, mimetype='text/csv')
+
+@app.route('/json/')
+def json():
+	username = request.args.get('user')
+	userhash = hashlib.sha256(b"{username}").hexdigest()
+	json = parser.df_to_txt(f"{userhash}.fson", userhash)
+	return Response(json, mimetype='text/json')
+
+@app.route('/xml/')
+def xml():
+	username = request.args.get('user')
+	userhash = hashlib.sha256(b"{username}").hexdigest()
+	xml = parser.df_to_xml(f"{userhash}.fson", userhash)
+	return Response(xml, mimetype='text/xml')
+
+@app.route('/xlsx/')
+def xlsx():
+	username = request.args.get('user')
+	userhash = hashlib.sha256(b"{username}").hexdigest()
+	xlsx = parser.df_to_excel(f"{userhash}.fson", userhash)
+	return Response(xlsx, mimetype='text/xlsx')
 
 if __name__ == '__main__':
 	app.run(port=5000, host="0.0.0.0")
