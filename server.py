@@ -1,4 +1,7 @@
 import os
+import re
+import glob
+import hashlib
 import subprocess
 from flask import Flask, Response, request, send_file, abort, jsonify, render_template
 
@@ -12,20 +15,61 @@ def hello_world():
 def login_submit():
 	if request.method == 'POST':
 		username = request.form['submit-username']
+		userhash = hashlib.sha256(b"{username}").hexdigest()
 		password = request.form['submit-password']
-		tmpfile = open(f"./tmp.{username}.json", 'w')
-		scrape = subprocess.call(["node", "./example/index.js", username, password], stdout=tmpfile)
+		filename = f"./{userhash}.json"
+		filename2 = f"./{userhash}.tmp.json"
+		if os.path.isfile(filename):
+			tmpfile = open(filename2, 'w')
+			oldfile = open(filename, 'r')
+			scrape = subprocess.call(["node", "./example/index.js", username, password], stdout=tmpfile)
+			oldfile.close()
+			newfile = open(filename, 'w')
 
+			diff = subprocess.run(["diff", filename, filename2], stdout=subprocess.PIPE, text=True)
+			difftxt = re.sub('> ', '', diff.stdout)
+			if '[' in diff.stdout:
+				diffsplit = difftxt.split('\n')
+				difftxt = ""
+				index = 0
+				for f in diffsplit:
+					if index >= 1:
+						difftxt += f"{f}\n"
+					index += 1
+				print(difftxt)
+				newfile.write(difftxt)
+			else:
+				diffsplit = difftxt.split('\n')
+				difftxt = ""
+				index = 0
+				for f in diffsplit:
+					if index >= 2:
+						difftxt += f"{f}\n"
+					index += 1
+				print(difftxt)
+				newfile.write("[ " + difftxt + "}]")
+			newfile.close()
+			tmpfile.close()
+			os.remove(filename2)
+		else:
+			tmpfile = open(filename, 'w')
+			scrape = subprocess.call(["node", "./example/index.js", username, password], stdout=tmpfile)
 		return(f'''
-			<meta http-equiv="refresh" content="0; URL=/choice/?user={username}&type=json">
-			<link rel="canonical" href="/choice/?user={username}&type=json">
+			<meta http-equiv="refresh" content="0; URL=/choice/?user={userhash}">
+			<link rel="canonical" href="/choice/?user={userhash}">
 				''')
 
 @app.route('/choice/')
 def choice():
-	username = request.args.get('user')
-	filetype = request.args.get('type')
-	return send_file(f"tmp.{username}.{filetype}", mimetype='text/json')
+	userhash = request.args.get('user')
+	return send_file(f"{userhash}.json", mimetype='text/text')
+
+@app.route('/delete/')
+def delete():
+	userhash = request.args.get('user')
+	for f in glob.glob(f"{userhash}.*"):
+		os.remove(f)
+	return "deleted"
 
 if __name__ == '__main__':
 	app.run(port=5000, host="0.0.0.0")
