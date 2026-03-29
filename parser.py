@@ -14,6 +14,7 @@
 from io import StringIO
 import pandas as pd
 import re
+import json
 
 
 
@@ -117,11 +118,22 @@ def json_to_df(validjson):
     assignmentsdf = pd.read_json(validjson)
     return assignmentsdf
 
+#REQUIRES PATH TO VALID JSON
+def validjson_to_df_to_json(validjson):
+    df = json_to_df(validjson)
+    assignmentsjson = df.to_json("assignments.json", orient="index")
+    with open(r'assignments.json', 'r') as f:
+        assignmentsjson = f.readlines()
+    f.close
+    return assignmentsjson
 
 
 def df_to_json(filename):
     df = parse_to_df(filename)
-    assignmentsjson = df.to_json("assignments.json" ,orient="index")
+    assignmentsjson = df.to_json("assignments.json", orient="index")
+    with open(r'assignments.json', 'r') as f:
+        assignmentsjson = f.readlines()
+    f.close
     return assignmentsjson
 
 def df_to_csv(filename):
@@ -154,3 +166,5 @@ def df_to_excel(filename):
     df = parse_to_df(filename)
     assignmentsxlsx = df.to_excel("assignments.xlsx", index=False)
     return assignmentsxlsx
+
+print(df_to_json("example.json"))
