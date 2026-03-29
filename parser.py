@@ -2,16 +2,19 @@
 #DIRECTIONS:
 #   All parsing to valid json is done within public functions.
 #   Call any of the below functions with a file path string to object array file:
-#       df_to_json(filpath)
-#       df_to_csv(filpath)
-#       df_to_txt(filpath)
-#       df_to_xml(filpath)
-#       df_to_excel(filpath) WIP
+#       df_to_json(filpath) -> takes in objectarrayfile, returns valid json
+#       df_to_csv(filpath) -> takes in objectarrayfile, returns valid csv
+#       df_to_txt(filpath) -> takes in objectarrayfile, returns valid txt
+#       df_to_xml(filpath) -> takes in objectarrayfile, returns valid xml
+#       df_to_excel(filpath)  -> takes in objectarrayfile, returns valid xslx
+#       !!!REQUIRES VALID JSON INPUT!!!
+#       json_to_df(validjson) -> takes in VALID JSON, returns dataframe (for parsing)
 
 
 from io import StringIO
 import pandas as pd
 import re
+import json
 
 
 
@@ -115,11 +118,22 @@ def json_to_df(validjson):
     assignmentsdf = pd.read_json(validjson)
     return assignmentsdf
 
+#REQUIRES PATH TO VALID JSON
+def validjson_to_df_to_json(validjson):
+    df = json_to_df(validjson)
+    assignmentsjson = df.to_json("assignments.json", orient="index")
+    with open(r'assignments.json', 'r') as f:
+        assignmentsjson = f.readlines()
+    f.close
+    return assignmentsjson
 
 
 def df_to_json(filename):
     df = parse_to_df(filename)
-    assignmentsjson = df.to_json("assignments.json" ,orient="index")
+    assignmentsjson = df.to_json("assignments.json", orient="index")
+    with open(r'assignments.json', 'r') as f:
+        assignmentsjson = f.readlines()
+    f.close
     return assignmentsjson
 
 def df_to_csv(filename):
@@ -152,3 +166,4 @@ def df_to_excel(filename):
     df = parse_to_df(filename)
     assignmentsxlsx = df.to_excel("assignments.xlsx", index=False)
     return assignmentsxlsx
+
