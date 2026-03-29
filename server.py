@@ -25,6 +25,7 @@ def login_submit():
 	userhash = hashlib.sha256(b"{username}").hexdigest()
 	filename = f"./{userhash}.fson"
 	filename2 = f"./{userhash}.tmp.fson"
+	'''
 	if os.path.isfile(filename):
 		tmpfile = open(filename2, 'w')
 		oldfile = open(filename, 'r')
@@ -59,8 +60,9 @@ def login_submit():
 		if os.path.isfile(filename2):
 			os.remove(filename2)
 	else:
-		tmpfile = open(filename, 'w')
-		scrape = subprocess.call(["node", "./example/index.js", username, password], stdout=tmpfile)
+	'''
+	tmpfile = open(filename, 'w')
+	scrape = subprocess.call(["node", "./example/index.js", username, password], stdout=tmpfile)
 	returnjson = parser.df_to_json(filename, userhash)
 	print(returnjson)
 	return Resonse(returnjson, mimetype='text/json')
