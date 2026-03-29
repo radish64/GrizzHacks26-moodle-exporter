@@ -74,9 +74,22 @@ const GLOBAL_STYLES = `
   .fade-msg { animation: fadeMsg 0.3s ease forwards; }
   .fade-in  { animation: fadeIn 0.5s ease forwards; }
   .pop-in   { animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards; }
-
   body { background: #e0f2fe; }
 `;
+
+/* ─── DEMO DATA ─── */
+const ASSIGNMENTS = {
+  "0": { courseName: "MTH-2554", name: "Attendance", deadline: "2026-03-30 18:27" },
+  "1": { courseName: "MTH-2554", name: "Attendance", deadline: "2026-04-01 18:27" },
+  "2": { courseName: "MTH-2554", name: "Attendance", deadline: "2026-04-03 18:27" },
+  "3": { courseName: "MTH-2554", name: "Attendance", deadline: "2026-04-06 18:27" },
+  "4": { courseName: "CSI-4240", name: "Assignment One is due", deadline: "2026-04-07 03:59" },
+  "5": { courseName: "MTH-2554", name: "Attendance", deadline: "2026-04-08 18:27" },
+  "6": { courseName: "MTH-2554", name: "Attendance", deadline: "2026-04-10 18:27" },
+  "7": { courseName: "MTH-2554", name: "Attendance", deadline: "2026-04-13 18:27" },
+  "8": { courseName: "MTH-2554", name: "Attendance", deadline: "2026-04-15 18:27" },
+  "9": { courseName: "MTH-2554", name: "Attendance", deadline: "2026-04-17 18:27" },
+};
 
 /* ─── SLIDE PANELS ─── */
 
@@ -313,7 +326,7 @@ function WelcomeScreen({ onStart }) {
 }
 
 /* ─── WINDOW 2: LOGIN ─── */
-// LoginScreen RECEIVES onLogin and onBack as props from App (defined in ROOT)
+/* LoginScreen RECEIVES onLogin and onBack as props from App (defined in ROOT)*/
 
 function LoginScreen({ onLogin, onBack }) {
   const [username, setUsername] = useState("");
@@ -352,14 +365,14 @@ function LoginScreen({ onLogin, onBack }) {
           </div>
         </div>
 
-        // THIS is where onLogin gets called. If ready=true (both fields filled),
-        // it calls onLogin() which triggers setStep(2) back in App → goes to loading screen
+        {/* THIS is where onLogin gets called. If ready=true (both fields filled)*/}
+        {/* it calls onLogin() which triggers setStep(2) back in App → goes to loading screen*/}
         <button onClick={() => ready && onLogin(username, password)} style={{ width: "100%", background: ready ? "linear-gradient(135deg, #0284c7, #0ea5e9)" : "rgba(186,230,253,0.5)", border: "none", borderRadius: "14px", padding: "16px", color: ready ? "#fff" : "#93c5fd", fontSize: "16px", fontWeight: "700", cursor: ready ? "pointer" : "not-allowed", fontFamily: "inherit", letterSpacing: "0.04em", transition: "all 0.2s", boxShadow: ready ? "0 6px 24px rgba(2,132,199,0.35)" : "none", marginBottom: "12px" }}
           onMouseEnter={(e) => { if (ready) { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 10px 32px rgba(2,132,199,0.45)"; } }}
           onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = ready ? "0 6px 24px rgba(2,132,199,0.35)" : "none"; }}
         >Log In</button>
 
-        // This is where onBack gets called → triggers setStep(0) back in App → goes to welcome screen
+        {/* This is where onBack gets called → triggers setStep(0) back in App → goes to welcome screen */}
         <button onClick={onBack} style={{ width: "100%", background: "none", border: "1.5px solid rgba(186,230,253,0.8)", borderRadius: "14px", padding: "13px", color: "#0369a1", fontSize: "14px", fontWeight: "600", cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s" }}
           onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.4)")}
           onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
@@ -382,9 +395,10 @@ const LOADING_MESSAGES = [
   "Almost there...",
 ];
 
-function LoadingScreen({ onDone }) {
+function LoadingScreen({ onDone, loggedUser, loggedPassword }) {
   const [msgIndex, setMsgIndex] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [items, setItems] = useState([]);
   const [fade, setFade] = useState(true);
 
   useEffect(() => {
@@ -404,6 +418,16 @@ function LoadingScreen({ onDone }) {
     }, 105);
     return () => clearInterval(progInterval);
   }, [onDone]);
+
+    useEffect(() => {
+        fetch(`http://127.0.0.1:5000/login-submit?user=${loggedUser}&pass=${loggedPassword}`)
+            .then((res) => res.json())
+            .then((json) => {
+                setItems(json);
+                setDataIsLoaded(true);
+            });
+    }, [loggedUser,loggedPassword]); 
+	console.log(items);
 
   return (
     <div className="static-bg-loading" style={{ minHeight: "100vh", position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 24px" }}>
@@ -443,42 +467,22 @@ function LoadingScreen({ onDone }) {
 
 /* ─── WINDOW 4: DONE / EXPORT ─── */
 
-const SAMPLE_ASSIGNMENTS = [
-  { courseName: "MTH-2554-12037.202610-Multivariable Calculus", name: "Attendance", deadline: "2026-03-30T18:27:00.000Z" },
-  { courseName: "MTH-2554-12037.202610-Multivariable Calculus", name: "Attendance", deadline: "2026-04-01T18:27:00.000Z" },
-  { courseName: "MTH-2554-12037.202610-Multivariable Calculus", name: "Attendance", deadline: "2026-04-03T18:27:00.000Z" },
-  { courseName: "MTH-2554-12037.202610-Multivariable Calculus", name: "Attendance", deadline: "2026-04-06T18:27:00.000Z" },
-  { courseName: "MTH-2554-12037.202610-Multivariable Calculus", name: "Attendance", deadline: "2026-04-07T03:59:00.000Z" },
-  { courseName: "MTH-2554-12037.202610-Multivariable Calculus", name: "Attendance", deadline: "2026-04-08T18:27:00.000Z" },
-  { courseName: "MTH-2554-12037.202610-Multivariable Calculus", name: "Attendance", deadline: "2026-04-10T18:27:00.000Z" },
-  { courseName: "MTH-2554-12037.202610-Multivariable Calculus", name: "Attendance", deadline: "2026-04-13T18:27:00.000Z" },
-  { courseName: "MTH-2554-12037.202610-Multivariable Calculus", name: "Attendance", deadline: "2026-04-15T18:27:00.000Z" },
-  { courseName: "MTH-2554-12037.202610-Multivariable Calculus", name: "Attendance", deadline: "2026-04-17T18:27:00.000Z" },
-  { courseName: "CSI-4240-13258 / CSI-5240-13259.202610", name: "Homework 1", deadline: "2026-01-18T18:27:00.000Z" },
-  { courseName: "CSI-4240-13258 / CSI-5240-13259.202610", name: "Homework 2", deadline: "2026-02-15T18:27:00.000Z" },
-  { courseName: "CSI-4240-13258 / CSI-5240-13259.202610", name: "Homework 3", deadline: "2026-03-15T18:27:00.000Z" },
-  { courseName: "CSI-4240-13258 / CSI-5240-13259.202610", name: "Homework 4", deadline: "2026-04-15T18:27:00.000Z" },
-  { courseName: "CSI-4240-13258 / CSI-5240-13259.202610", name: "Homework 5", deadline: "2026-05-15T18:27:00.000Z" },
-  { courseName: "CSI-4240-13258 / CSI-5240-13259.202610", name: "Homework 6", deadline: "2026-06-15T18:27:00.000Z" },
-];
-
-function DoneScreen({ onRestart, loggedUser }) {
+function DoneScreen({ onRestart, loggedUser, jsonString }) {
   const [format, setFormat] = useState("json");
   const [downloaded, setDownloaded] = useState(false);
   const [calendarAdded, setCalendarAdded] = useState(false);
   const [copied, setCopied] = useState(false);
-  const jsonString = JSON.stringify(SAMPLE_ASSIGNMENTS, null, 2);
+
+  // Convert object with numbered keys to array so we can map over it
+  const jsonObject = Object.values(assignments);
 
   const handleCopy = () => {
     const tableText = [
       ["Course Name", "Assignment", "Deadline"].join("\t"),
-      ...SAMPLE_ASSIGNMENTS.map((a) => [
+      ...jsonObject.map((a) => [
         a.courseName,
         a.name,
-        new Date(a.deadline).toLocaleDateString("en-US", {
-          month: "short", day: "numeric", year: "numeric",
-          hour: "2-digit", minute: "2-digit",
-        }),
+        a.deadline,
       ].join("\t")),
     ].join("\n");
     navigator.clipboard.writeText(tableText);
@@ -508,7 +512,7 @@ function DoneScreen({ onRestart, loggedUser }) {
           <div>
             <div style={{ display: "inline-block", background: "rgba(14,165,233,0.12)", color: "#0284c7", borderRadius: "100px", padding: "4px 14px", fontSize: "12px", fontWeight: "700", fontFamily: "monospace", letterSpacing: "0.1em", marginBottom: "12px" }}>STEP 3 OF 3</div>
             <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "30px", fontWeight: "800", color: "#0c4a6e", lineHeight: 1.1 }}>Your assignments 🎉</h2>
-            <p style={{ color: "#0369a1", fontSize: "14px", marginTop: "6px", lineHeight: 1.5 }}>{SAMPLE_ASSIGNMENTS.length} assignments found</p>
+            <p style={{ color: "#0369a1", fontSize: "14px", marginTop: "6px", lineHeight: 1.5 }}>{jsonObject.length} assignments found</p>
           </div>
           <button onClick={handleCopy} style={{ background: copied ? "rgba(16,185,129,0.15)" : "rgba(255,255,255,0.7)", border: `1.5px solid ${copied ? "rgba(16,185,129,0.5)" : "rgba(186,230,253,0.8)"}`, borderRadius: "12px", padding: "10px 18px", color: copied ? "#065f46" : "#0369a1", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s", whiteSpace: "nowrap" }}>
             {copied ? "✅ Copied!" : "📋 Copy Table"}
@@ -527,13 +531,11 @@ function DoneScreen({ onRestart, loggedUser }) {
                 </tr>
               </thead>
               <tbody>
-                {SAMPLE_ASSIGNMENTS.map((a, i) => (
+                {jsonObject.map((a, i) => (
                   <tr key={i} style={{ background: i % 2 === 0 ? "rgba(255,255,255,0.5)" : "rgba(186,230,253,0.15)", borderBottom: "1px solid rgba(186,230,253,0.3)" }}>
                     <td style={{ padding: "10px 16px", color: "#075985", fontWeight: "600", fontSize: "12px", maxWidth: "220px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.courseName}</td>
                     <td style={{ padding: "10px 16px", color: "#0c4a6e", fontWeight: "700", fontSize: "13px" }}>{a.name}</td>
-                    <td style={{ padding: "10px 16px", color: "#0369a1", fontFamily: "monospace", fontSize: "12px", whiteSpace: "nowrap" }}>
-                      {new Date(a.deadline).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-                    </td>
+                    <td style={{ padding: "10px 16px", color: "#0369a1", fontFamily: "monospace", fontSize: "12px", whiteSpace: "nowrap" }}>{a.deadline}</td>
                   </tr>
                 ))}
               </tbody>
@@ -550,6 +552,7 @@ function DoneScreen({ onRestart, loggedUser }) {
             <option value="txt">TXT</option>
             <option value="csv">CSV</option>
             <option value="json">JSON</option>
+            <option value="xlsx">XLSX</option>
           </select>
           <button onClick={handleDownload} style={{ background: "linear-gradient(135deg, #0284c7, #0ea5e9)", border: "none", borderRadius: "12px", padding: "11px 22px", color: "#fff", fontSize: "14px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap", boxShadow: "0 4px 16px rgba(2,132,199,0.35)", transition: "all 0.2s" }}
             onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 24px rgba(2,132,199,0.45)"; }}
@@ -587,8 +590,11 @@ function DoneScreen({ onRestart, loggedUser }) {
 export default function App() {
   const [step, setStep] = useState(0);
   const [panel, setPanel] = useState(null);
-  const [loggedUser, setLoggedUser] = useState(""); 
+  const [loggedUser, setLoggedUser] = useState("");
   const [loggedPassword, setLoggedPassword] = useState("");
+  // assignments holds the demo data — replace with setAssignments(realData) when backend is ready
+  const [assignments, setAssignments] = useState(ASSIGNMENTS);
+
   return (
     <>
       <style>{GLOBAL_STYLES}</style>
@@ -597,21 +603,30 @@ export default function App() {
         onAbout={() => setPanel("about")}
         onHowTo={() => setPanel("howto")}
       />
-       
+
       {step === 0 && <WelcomeScreen onStart={() => setStep(1)} />}
-      {/* LoginScreen is called here. onLogin and onBack are defined RIGHT HERE as arrow functions.
-    onLogin = when called, move to step 2 (loading screen)
-    onBack  = when called, move to step 0 (welcome screen) */}
+      {/* onLogin saves username + password then moves to loading screen */}
       {step === 1 && <LoginScreen
-       onLogin={(username, password) => {
+        onLogin={(username, password) => {
+          setLoggedUser(username);
+          setLoggedPassword(password);
+          setStep(2);
+        }}
+        onBack={() => setStep(0)}
+      />}
+      {step === 2 && <LoadingScreen onDone={() => setStep(3)} />}
+      {step === 3 && <DoneScreen onRestart={() => setStep(0)} loggedUser={loggedUser} assignments={assignments} />
+
+       {/*onLogin={(username, password) => {
         setLoggedUser(username);
         setLoggedPassword(password);
         setStep(2);
       }} 
       onBack={() => setStep(0)} 
        />}
-      {step === 2 && <LoadingScreen onDone={() => setStep(3)} />}
-      {step === 3 && <DoneScreen onRestart={() => setStep(0)} loggedUser={loggedUser} />}
+      {step === 2 && <LoadingScreen onDone={() => setStep(3)} loggedUser={loggedUser} loggedPassword={loggedPassword}/>}
+      {step === 3 && <DoneScreen onRestart={() => setStep(0)} loggedUser={loggedUser} jsonString={jsonString}/>}
+      */}
       {panel === "about" && <AboutUsPanel onClose={() => setPanel(null)} />}
       {panel === "howto" && <HowToUsePanel onClose={() => setPanel(null)} />}
 

@@ -1,3 +1,10 @@
-node_modules 
-dist 
-.env 
+*.json
+bin
+dist
+include
+lib
+lib64
+node_modules
+parservenv
+__pycache__
+.env
