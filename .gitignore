@@ -1,7 +1,3 @@
-./bin
-./include
-./lib
-./lib64
-LICENSE
-README
-pyvenv.cfg
+node_modules 
+dist 
+.env 
