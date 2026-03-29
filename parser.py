@@ -167,4 +167,3 @@ def df_to_excel(filename):
     assignmentsxlsx = df.to_excel("assignments.xlsx", index=False)
     return assignmentsxlsx
 
-print(df_to_json("example.json"))
