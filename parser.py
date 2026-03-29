@@ -2,11 +2,13 @@
 #DIRECTIONS:
 #   All parsing to valid json is done within public functions.
 #   Call any of the below functions with a file path string to object array file:
-#       df_to_json(filpath)
-#       df_to_csv(filpath)
-#       df_to_txt(filpath)
-#       df_to_xml(filpath)
-#       df_to_excel(filpath) WIP
+#       df_to_json(filpath) -> takes in objectarrayfile, returns valid json
+#       df_to_csv(filpath) -> takes in objectarrayfile, returns valid csv
+#       df_to_txt(filpath) -> takes in objectarrayfile, returns valid txt
+#       df_to_xml(filpath) -> takes in objectarrayfile, returns valid xml
+#       df_to_excel(filpath)  -> takes in objectarrayfile, returns valid xslx
+#       !!!REQUIRES VALID JSON INPUT!!!
+#       json_to_df(validjson) -> takes in VALID JSON, returns dataframe (for parsing)
 
 
 from io import StringIO
