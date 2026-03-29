@@ -3,6 +3,7 @@ import re
 import glob
 import hashlib
 import subprocess
+import parser
 from flask import Flask, Response, request, send_file, abort, jsonify, render_template
 from flask_cors import CORS
 
@@ -60,7 +61,10 @@ def login_submit():
 	else:
 		tmpfile = open(filename, 'w')
 		scrape = subprocess.call(["node", "./example/index.js", username, password], stdout=tmpfile)
-	return send_file(f"{userhash}.json", mimetype='text/text')
+	returnjson = parser.df_to_json(filename)
+	print(returnjson)
+	return Resonse(returnjson, mimetype='text/json')
+	#return send_file(f"{userhash}.json", mimetype='text/text')
 
 #	return(f'''
 #		<meta http-equiv="refresh" content="0; URL=/choice/?user={userhash}">
