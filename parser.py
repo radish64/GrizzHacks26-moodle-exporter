@@ -119,51 +119,43 @@ def json_to_df(validjson):
     return assignmentsdf
 
 #REQUIRES PATH TO VALID JSON
-def validjson_to_df_to_json(validjson):
+def validjson_to_df_to_json(validjson, hashed):
     df = json_to_df(validjson)
-    assignmentsjson = df.to_json("assignments.json", orient="index")
+    hashed = hashed + ".json"
+    assignmentsjson = df.to_json(hashed, orient="index")
     with open(r'assignments.json', 'r') as f:
         assignmentsjson = f.readlines()
     f.close
     return assignmentsjson
 
 
-def df_to_json(filename):
+def df_to_json(filename, hashed):
     df = parse_to_df(filename)
-    assignmentsjson = df.to_json("assignments.json", orient="index")
+    hashed = hashed + ".json"
+    assignmentsjson = df.to_json(hashed, orient="index", indent=4)
     with open(r'assignments.json', 'r') as f:
         assignmentsjson = f.readlines()
     f.close
     return assignmentsjson
 
-def df_to_csv(filename):
+def df_to_csv(filename, hashed):
     df = parse_to_df(filename)
-    assignmentscsv = df.to_csv("assignments.csv", columns={"courseName", "name", "deadline"}, index=False)
+    hashed = hashed + ".csv"
+    assignmentscsv = df.to_csv(hashed, columns={"courseName", "name", "deadline"}, index=False)
     return assignmentscsv
 
-def df_to_txt(filename):
+def df_to_txt(filename, hashed):
     df = parse_to_df(filename)
-    path = r'assignments.txt'
-
-    with open(path, 'a') as f:
+    hashed = hashed + ".txt"
+    with open(hashed, 'a') as f:
         assignmentstxt = df.to_string(header=True, index=True)
         f.write(assignmentstxt)
     f.close
     return assignmentstxt
 
-def df_to_xml(filename):
-    df = parse_to_df(filename)
-    assignmentsxml = df.to_xml(index=False)
-    path = r'assignments.xml'
 
-    with open(path, 'a') as f:
-        assignmentsxml = df.to_string()
-        f.write(assignmentsxml)
-    f.close
-    return assignmentsxml
-
-def df_to_excel(filename):
+def df_to_excel(filename, hashed):
     df = parse_to_df(filename)
-    assignmentsxlsx = df.to_excel("assignments.xlsx", index=False)
+    hashed = hashed + ".xlsx"
+    assignmentsxlsx = df.to_excel(hashed, index=False)
     return assignmentsxlsx
-
