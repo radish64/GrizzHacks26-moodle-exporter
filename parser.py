@@ -1,10 +1,8 @@
 #main parser function - parses json found in local directory and returns csv, txt, xml, and xslx
 from io import StringIO
-
-from bs4 import BeautifulSoup # might not even need actually
 import pandas as pd
 import re
-#import json
+import datetime
 
 filename = "example.json"
 
@@ -66,20 +64,42 @@ def parse(jsonstr):
     classobj = jarr[0] + "]"
     assignmentsobj = "[" + jarr[1]
 
-    #pandas parses - could make more lightweight by writing my own code if this takes a while
     classdf = pd.read_json(StringIO(classobj))
-    #pandas parses - could make more lightweight by writing my own code if this takes a while
     assignmentsdf = pd.read_json(StringIO(assignmentsobj))
-    print(assignmentsdf.head(10))
-
-    #parse json data, create new properly formatted json
 
     #parse coursename
-    
-    print(assignmentsdf.head(10))
+    #size of df is returned row*column, so dividing by num of columns
+    classname_dict = {}
+    numrows = int(classdf.size/3)
+    for i in range(0, numrows, 1):
+        str = classdf.loc[i, "name"]
+        newclass = re.findall("[A-Z]{3}-[0-9]{4}", str)
+        classdf.loc[i, "name"]=newclass[0]
+        #add to dict
+        classname_dict[int(classdf.loc[i, "id"])]=newclass[0]
+
+    #assign coursename on assignmentsdf
+    #add new col for className
+    assignmentsdf.insert(loc=1, column="className", value="")
+    #deleting assignments id
+    assignmentsdf.drop("id", axis=1, inplace=True)
+    #5 columns in df after col changes
+    numrows = int(assignmentsdf.size/5)
+    for i in range(0, numrows, 1):
+        courseid = assignmentsdf.loc[i, "courseId"]
+        #use dict for lookup
+        assignmentsdf.loc[i, "className"]=classname_dict[int(courseid)]
+    #deletes desc and course id column once no longer needed
+    assignmentsdf.drop(columns=["courseId", "description"], inplace=True)
+
+    #finally transforming datetime
+    #pd.to_datetime(assignmentsdf["deadline"], format="%Y-%m-%dT%H:%M:%S.%fZ")
+    for i in range(0, numrows, 1):
+        datestr = assignmentsdf.loc[i, "deadline"]
+        dt = pd.to_datetime(datestr, format="%Y-%m-%dT%H:%M:%S.%fZ")
+        dtstr = dt.strftime('%Y-%m-%d %H:%M')
+        assignmentsdf.loc[i, "deadline"] = dtstr
+    return assignmentsdf
 
 
-    return
-
-
-parse(parse_to_json(filename))
+print(parse(parse_to_json(filename)).head(10))
