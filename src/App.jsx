@@ -33,6 +33,7 @@ const GLOBAL_STYLES = `
     70%  { transform: scale(1.04); }
     100% { transform: scale(1); opacity: 1; }
   }
+
   @keyframes swimRight {
     0%   { transform: translateX(calc(100vw + 120px)); opacity: 0; }
     5%   { opacity: 1; }
@@ -61,6 +62,7 @@ const GLOBAL_STYLES = `
     from { transform: translateX(0); }
     to   { transform: translateX(100%); }
   }
+
   .static-bg {
     background: linear-gradient(160deg, #e0f2fe 0%, #bae6fd 35%, #7dd3fc 65%, #38bdf8 100%);
   }
@@ -94,11 +96,31 @@ const ASSIGNMENTS = {
 function SlidePanel({ title, onClose, children }) {
   return (
     <>
-      <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(7,89,133,0.3)", backdropFilter: "blur(4px)" }} />
-      <div className="slide-in" style={{ position: "fixed", top: 0, right: 0, bottom: 0, width: "min(480px, 100vw)", zIndex: 201, background: "linear-gradient(160deg, #e0f2fe, #bae6fd)", boxShadow: "-8px 0 48px rgba(2,132,199,0.2)", overflowY: "auto", display: "flex", flexDirection: "column" }}>
-        <div style={{ padding: "24px 28px 20px", borderBottom: "1.5px solid rgba(186,230,253,0.6)", display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(255,255,255,0.4)", backdropFilter: "blur(12px)", position: "sticky", top: 0, zIndex: 1 }}>
+      <div onClick={onClose} style={{
+        position: "fixed", inset: 0, zIndex: 200,
+        background: "rgba(7,89,133,0.3)", backdropFilter: "blur(4px)",
+      }} />
+      <div className="slide-in" style={{
+        position: "fixed", top: 0, right: 0, bottom: 0,
+        width: "min(480px, 100vw)", zIndex: 201,
+        background: "linear-gradient(160deg, #e0f2fe, #bae6fd)",
+        boxShadow: "-8px 0 48px rgba(2,132,199,0.2)",
+        overflowY: "auto", display: "flex", flexDirection: "column",
+      }}>
+        <div style={{
+          padding: "24px 28px 20px",
+          borderBottom: "1.5px solid rgba(186,230,253,0.6)",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          background: "rgba(255,255,255,0.4)", backdropFilter: "blur(12px)",
+          position: "sticky", top: 0, zIndex: 1,
+        }}>
           <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "22px", fontWeight: "800", color: "#0c4a6e" }}>{title}</h2>
-          <button onClick={onClose} style={{ background: "rgba(255,255,255,0.6)", border: "1.5px solid rgba(186,230,253,0.8)", borderRadius: "100px", width: "36px", height: "36px", cursor: "pointer", fontSize: "18px", color: "#0369a1", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.2s" }}
+          <button onClick={onClose} style={{
+            background: "rgba(255,255,255,0.6)", border: "1.5px solid rgba(186,230,253,0.8)",
+            borderRadius: "100px", width: "36px", height: "36px",
+            cursor: "pointer", fontSize: "18px", color: "#0369a1",
+            display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.2s",
+          }}
             onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.9)")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.6)")}
           >×</button>
@@ -192,14 +214,23 @@ function HowToUsePanel({ onClose }) {
 
 function AquariumNav({ onHome, onAbout, onHowTo }) {
   return (
-    <nav style={{ position: "fixed", top: 0, left: 0, right: 0, height: "60px", zIndex: 100, background: "rgba(7, 89, 133, 0.75)", backdropFilter: "blur(16px)", borderBottom: "1.5px solid rgba(125,211,252,0.3)" }}>
+    <nav style={{
+      position: "fixed", top: 0, left: 0, right: 0, height: "60px", zIndex: 100,
+      background: "rgba(7, 89, 133, 0.75)", backdropFilter: "blur(16px)",
+      borderBottom: "1.5px solid rgba(125,211,252,0.3)",
+    }}>
       <div style={{ height: "100%", display: "flex", alignItems: "center", padding: "0 28px", justifyContent: "space-between" }}>
         <div onClick={onHome} style={{ cursor: onHome ? "pointer" : "default" }}>
           <img src="/src/catfish_logo.png" alt="logo" style={{ width: "240px", height: "140px", objectFit: "contain" }} />
         </div>
         <div style={{ display: "flex", gap: "8px", background: "rgba(255,255,255,0.15)", backdropFilter: "blur(8px)", border: "1.5px solid rgba(255,255,255,0.25)", borderRadius: "100px", padding: "6px 16px" }}>
           {[["About Us", onAbout], ["How to Use", onHowTo]].map(([label, handler]) => (
-            <button key={label} onClick={handler} style={{ background: "none", border: "none", cursor: "pointer", color: "#fff", fontSize: "14px", fontWeight: "700", fontFamily: "inherit", letterSpacing: "0.02em", padding: "4px 12px", borderRadius: "100px", transition: "background 0.2s" }}
+            <button key={label} onClick={handler} style={{
+              background: "none", border: "none", cursor: "pointer",
+              color: "#fff", fontSize: "14px", fontWeight: "700",
+              fontFamily: "inherit", letterSpacing: "0.02em",
+              padding: "4px 12px", borderRadius: "100px", transition: "background 0.2s",
+            }}
               onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.2)")}
               onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
             >{label}</button>
@@ -334,6 +365,8 @@ function LoginScreen({ onLogin, onBack }) {
           </div>
         </div>
 
+        {/* THIS is where onLogin gets called. If ready=true (both fields filled)*/}
+        {/* it calls onLogin() which triggers setStep(2) back in App → goes to loading screen*/}
         <button onClick={() => ready && onLogin(username, password)} style={{ width: "100%", background: ready ? "linear-gradient(135deg, #0284c7, #0ea5e9)" : "rgba(186,230,253,0.5)", border: "none", borderRadius: "14px", padding: "16px", color: ready ? "#fff" : "#93c5fd", fontSize: "16px", fontWeight: "700", cursor: ready ? "pointer" : "not-allowed", fontFamily: "inherit", letterSpacing: "0.04em", transition: "all 0.2s", boxShadow: ready ? "0 6px 24px rgba(2,132,199,0.35)" : "none", marginBottom: "12px" }}
           onMouseEnter={(e) => { if (ready) { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 10px 32px rgba(2,132,199,0.45)"; } }}
           onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = ready ? "0 6px 24px rgba(2,132,199,0.35)" : "none"; }}
@@ -520,7 +553,6 @@ function DoneScreen({ onRestart, loggedUser, jsonString }) {
             <option value="csv">CSV</option>
             <option value="json">JSON</option>
             <option value="xlsx">XLSX</option>
-            <option value="xml">XML</option>
           </select>
           <button onClick={handleDownload} style={{ background: "linear-gradient(135deg, #0284c7, #0ea5e9)", border: "none", borderRadius: "12px", padding: "11px 22px", color: "#fff", fontSize: "14px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap", boxShadow: "0 4px 16px rgba(2,132,199,0.35)", transition: "all 0.2s" }}
             onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 24px rgba(2,132,199,0.45)"; }}
